@@ -4,7 +4,6 @@
 (function ($) {
     var $scrollTop = $('[data-parallax-top]');
     var $scrollBottom = $('[data-parallax-bottom]');
-    var factor;
     var scrollPosition = 0;
 
     /**
@@ -12,51 +11,19 @@
      * @return {[type]} [description]
      */
     var _generateFactor = function () {
-        var i = 0;
-        var j = 0;
+        var i, len;
 
-        for (; i < $scrollTop.length; i++) {
-            factor = $scrollTop[i].getAttribute('data-parallax-factor') || 4;
-
-            $scrollTop[i].factor = factor;
+        for (i = 0, len = $scrollTop.length; i < len; i++) {
+            $scrollTop.eq(i).css('transform', 'translate3d(0, 0, 0)');
+            $scrollTop[i].factor = $scrollTop[i].getAttribute('data-parallax-factor') || 4;
         }
 
-        for (; j < $scrollBottom.length; j++) {
-            factor = $scrollBottom[j].getAttribute('data-parallax-factor') || 4;
-
-            $scrollTop[j].factor = factor;
+        for (i = 0, len = $scrollBottom.length; i < len; i++) {
+            $scrollBottom.eq(i).css('transform', 'translate3d(0, 0, 0)');
+            $scrollBottom[i].factor = $scrollBottom[i].getAttribute('data-parallax-factor') || 4;
         }
     };
 
-    /**
-     * Throttle scrolling
-     * @param  {function} func
-     * @param  {integer}  wait
-     * @param  {boolean}  immediate
-     * @return {function}
-     */
-    var _throttle = function (func, wait, immediate) {
-        var timeout;
-
-        return function () {
-            var later = function () {
-                timeout = null;
-
-                if (!immediate) {
-                    func.apply(this, arguments);
-                }
-            };
-
-            var callNow = immediate && !timeout;
-
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-
-            if (callNow) {
-                func.apply(this, arguments);
-            }
-        };
-    };
 
     /**
      * Callback for throttle function
@@ -64,34 +31,37 @@
      */
     var _callback = function () {
         var scroll = window.pageYOffset;
-        var i;
+        var i, len;
         var factor;
 
         if (scrollPosition === scroll) {
-            window.cancelAnimationFrame(_callback);
+
+            window.requestAnimationFrame(_callback);
 
             return false;
         }
 
-        for (i = 0; i < $scrollTop.length; i++) {
+        scrollPosition = scroll;
+
+        for (i = 0, len = $scrollTop.length; i < len; i++) {
             factor = $scrollTop[i].factor;
-            $scrollTop.eq(i).css('transform', 'translateY(' + parseInt(scroll / factor, 10) + 'px)');
+            $scrollTop.eq(i).css('transform', 'translate3d(0, ' + parseInt(scroll / factor, 10) + 'px, 0)');
         }
 
-        for (i = 0; i < $scrollBottom.length; i++) {
-            factor = $scrollTop[i].factor;
-            $scrollTop.eq(i).css('transform', 'translateY(' + parseInt(scroll / (factor * -1), 10) + 'px)');
+        for (i = 0, len = $scrollBottom.length; i < len; i++) {
+            factor = $scrollBottom[i].factor;
+            $scrollBottom.eq(i).css('transform', 'translate3d(0, ' + parseInt(scroll / (factor * -1), 10) + 'px, 0)');
         }
 
-        window.cancelAnimationFrame(_callback);
+        window.requestAnimationFrame(_callback);
     };
 
     /**
      * Init
      */
+
      _generateFactor();
 
-    $(window).on('scroll', function () {
-        _throttle(window.requestAnimationFrame(_callback), 100, false);
-    });
+     window.requestAnimationFrame(_callback);
+
 }(jQuery));
