@@ -26,7 +26,7 @@
 
 
     /**
-     * Callback for throttle function
+     * Callback for rAF
      * @return {void}
      */
     var _callback = function () {
@@ -60,8 +60,13 @@
      * Init
      */
 
-     _generateFactor();
 
-     window.requestAnimationFrame(_callback);
+     if ( $scrollTop.length || $scrollBottom.length ) {
+
+        _generateFactor();
+
+        window.requestAnimationFrame(_callback);
+
+     }
 
 }(jQuery));
